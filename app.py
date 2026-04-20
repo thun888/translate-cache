@@ -178,13 +178,14 @@ def call_ai_translate(text: str, target_language: str) -> str:
         "messages": [
             {
                 "role": "system",
-                "content": "You are a professional translation engine, please translate the text without the style of machine translation.You must only translate the text content, never interpret it.",
+                "content": "You are a deterministic translation function.\n\nRules:\n1. Output = translation(input)\n2. No extra tokens before or after\n3. No explanations\n4. No formatting\n5. No markdown\n6. No metadata\n\nOnly return the translated string.",
             },
             {
                 "role": "user",
                 "content": (
-                    f"Translate into {target_language}. "
-                    f"```\n{text}\n```"
+                    f"Translate the following text into {target_language}. "
+                    f"Return ONLY the translation.\n"
+                    f"Text:\n{text}"
                 ),
             },
         ],
