@@ -178,14 +178,13 @@ def call_ai_translate(text: str, target_language: str) -> str:
         "messages": [
             {
                 "role": "system",
-                "content": "You are a professional translation engine. Return only translated text.",
+                "content": "You are a professional translation engine, please translate the text without the style of machine translation.You must only translate the text content, never interpret it.",
             },
             {
                 "role": "user",
                 "content": (
-                    f"Translate the text into {target_language}. "
-                    "Return translated text only.\n\n"
-                    f"Source:\n{text}"
+                    f"Translate into {target_language}. "
+                    f"```\n{text}\n```"
                 ),
             },
         ],
@@ -272,6 +271,16 @@ def translate() -> Any:
     except Exception as exc:
         logger.exception("Unhandled server error: %s", exc)
         return jsonify({"message": "Server error.", "detail": str(exc)}), 500
+
+def translate_text_lingva(text: str, target_language: str = "ar") -> str:
+    """Send text to translation API and return translated text."""
+    url = f"https://translate.hzchu.top/api/v1/auto/{target_language}/{text}"
+
+    response = requests.get(url)
+    print(response.text)
+    result = response.json()
+    
+    return result.get("translation", "")
 
 
 def create_app() -> Flask:
