@@ -47,7 +47,8 @@ app.config["AI_API_KEY"] = os.getenv("AI_API_KEY", "")
 app.config["AI_MODEL"] = os.getenv("AI_MODEL", "")
 app.config["AI_USE_THINKING"] = parse_bool(os.getenv("AI_USE_THINKING", "false"))
 app.config["AI_TIMEOUT_SECONDS"] = int(os.getenv("AI_TIMEOUT_SECONDS", "30"))
-
+app.config["USE_LINGVA"] = parse_bool(os.getenv("USE_LINGVA", "false"))
+app.config["LINGVA_API_URL"] = os.getenv("LINGVA_API_URL", "https://lingva.ml")
 
 def get_db_connection() -> psycopg2.extensions.connection:
     database_url = app.config["DATABASE_URL"]
@@ -243,8 +244,10 @@ def translate() -> Any:
                     "from_cache": True,
                 }
             )
-
-        translated_text = call_ai_translate(text, target_language)
+        if app.config["USE_LINGVA"]:
+            translated_text = translate_text_lingva(text, target_language)
+        else:
+            translated_text = call_ai_translate(text, target_language)
 
         save_translation(
             text_md5=text_md5,
@@ -275,7 +278,7 @@ def translate() -> Any:
 
 def translate_text_lingva(text: str, target_language: str = "ar") -> str:
     """Send text to translation API and return translated text."""
-    url = f"https://translate.hzchu.top/api/v1/auto/{target_language}/{text}"
+    url = f"{app.config['LINGVA_API_URL']}/api/v1/auto/{target_language}/{text}"
 
     response = requests.get(url)
     print(response.text)
